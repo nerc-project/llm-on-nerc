@@ -1,6 +1,6 @@
 # LLM on NERC
 
-In this repo you will find resources, examples, recipes to setup and work with LLMs on NERC NERC OpenShift and NERC RHOAI.
+In this repo you will find resources, examples, recipes to setup and work with LLMs on NERC OpenShift and NERC RHOAI.
 
 ## Content
 
