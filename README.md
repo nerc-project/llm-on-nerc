@@ -21,3 +21,13 @@ The following **Databases** can be used as a Vector Store for Retrieval Augmente
 - [Milvus](vector-databases/milvus/README.md): Full recipe to deploy the Milvus vector store, in standalone mode.
 
 - [PostgreSQL+pgvector](vector-databases/pgvector/README.md): Full recipe to create an instance of PostgreSQL with the pgvector extension, making it usable as a vector store.
+
+### Inference and application examples
+
+- [Langchain examples](examples/notebooks/langchain/README.md): Various notebooks demonstrating how to work with [Langchain](https://www.langchain.com/). Examples are provided for different types of LLM servers (standalone or using the Model Serving stack of NERC OpenShift AI) and different vector databases.
+
+- [UI examples](examples/ui/README.md): Various examples on how to create and deploy a UI to interact with your LLM.
+
+### LLM clients
+
+- [AnythingLLM](llm-clients/anythingllm/README.md): [AnythingLLM](https://anythingllm.com/) is an all-in-one AI application that supports any LLM, any document, and any agent while ensuring full privacy. Here, it is implemented as a NERC RHOAI custom workbench, allowing seamless integration with your LLM and other resources.

@@ -12,7 +12,7 @@ We can install Ollama as a Standalone Deployment along with [Open WebUI](https:/
 
 ### Deployment Options
 
-There are **Two Deplyment Options** to deploy Ollama in standalone mode with the application named as **"ollama"**. In both cases, it automatically deploys the pre-fetched `tinyllama:1.1b` model.
+There are **Two Deplyment Options** to deploy Ollama in standalone mode with the application named as **"ollama"**. In both cases, it automatically deploys the pre-fetched [**Tinyllama model**](https://ollama.com/library/tinyllama:1.1b). The TinyLlama project is an open endeavor to train a compact 1.1B Llama model on 3 trillion tokens.
 
 1. **Clone** or navigate to [this repository](https://github.com/nerc-project/llm-on-nerc.git).
 
