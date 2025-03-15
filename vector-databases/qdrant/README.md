@@ -47,7 +47,7 @@ service/qdrant-service created
 route.route.openshift.io/qdrant-route created
 ```
 
-To delete all resources if not necessary just run `oc delete -f ./standalone/.` or `oc delete all,pvc,secret -l app=pgvector`.
+To delete all resources if not necessary just run `oc delete -f ./standalone/.` or `oc delete all,pvc,secret -l app=qdrant`.
 
 ## Usage
 
@@ -59,7 +59,7 @@ The API is now accessible at the endpoints:
 
 **Accessing Qdrant Dashboard:**
 
-Go to [https://qdrant-route-<your-namespace>.apps.shift.nerc.mghpcc.org/dashboard](https://qdrant-route-<your-namespace>.apps.shift.nerc.mghpcc.org/dashboard). This will prompt you for an **API key** that has been set up as a secret using the `01-qdrant-secret.yaml`.
+Go to [`https://qdrant-route-<your-namespace>.apps.shift.nerc.mghpcc.org/dashboard`](https://qdrant-route-<your-namespace>.apps.shift.nerc.mghpcc.org/dashboard). This will prompt you for an **API key** that has been set up as a secret using the `01-qdrant-secret.yaml`.
 
 To get the value of `QDRANT__SERVICE__API_KEY` from the `qdrant-key` Secret using the `oc` command, follow these steps:
 

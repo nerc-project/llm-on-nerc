@@ -48,7 +48,7 @@ spec:
         - name: qdrant-snapshot
           mountPath: /qdrant/snapshots
       restartPolicy: Always
-      imagePullSecrets:
-        - name: dockerhub-image-pull-secret
+      # imagePullSecrets:
+      #   - name: <your-secret-name>
   strategy:
     type: Recreate

@@ -107,9 +107,9 @@ To login the Attu web UI, please make sure to connect to:
 
 -   **Milvus Server:** milvus-service:19530
 
--   **Milvus Database:** Default
+-   **Milvus Database:** default
 
--   Toggle "Authentication"
+-   Toggle on: "Authentication"
 
 -   **Token:** Empty
 

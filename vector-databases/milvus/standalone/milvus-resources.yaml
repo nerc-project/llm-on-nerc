@@ -46,7 +46,7 @@ spec:
             - name: ETCD_ENDPOINTS
               value: etcd-service:2379
             - name: MINIO_ADDRESS
-              value: minio-service:9000
+              value: milvus-minio-service:9000
             - name: MINIO_ACCESS_KEY
               value: minioadmin  # Make sure to use secure Access Key
             - name: MINIO_SECRET_KEY
@@ -72,8 +72,8 @@ spec:
               subPath: milvus.yaml
               readOnly: true
       restartPolicy: Always
-      imagePullSecrets:
-        - name: dockerhub-image-pull-secret
+      # imagePullSecrets:
+      #   - name: <your-secret-name>
   strategy:
     type: Recreate
 ---
