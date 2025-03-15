@@ -10,4 +10,4 @@ Prebuilt images are available at [https://quay.io/repository/rh-aiservices-bu/an
 
 ## Connecting LLM Clients to the Deployed LLM Providers
 
-To learn more about how to use LLM clients i.e. **AnythingLLM** to connect with the locally deployed LLM providers on NERC OpenShift, please refer to this [detailed guide](https://nerc-project.github.io/nerc-docs/openshift-ai/other-projects/LLM-client-AnythingLLM/).
+To learn more about how to use LLM clients i.e. **AnythingLLM** to connect with the locally deployed LLM providers on NERC OpenShift, please refer to his [detailed guide](https://nerc-project.github.io/nerc-docs/openshift-ai/other-projects/LLM-client-AnythingLLM/).
