@@ -62,9 +62,9 @@ This is accessible **within the cluster only**, such as from the NERC RHOAI Work
 
 You can use either the service name or the fully qualified internal Hostname for service routing, as shown below:
 
-    -   **Option 1:** Using the service name i.e. http://postgresql:5432
+-   **Option 1:** Using the service name i.e. http://postgresql:5432
 
-    -   **Option 2:** Using the full internal hostname i.e. http://postgresql.<your-namespace>.svc.cluster.local:5432
+-   **Option 2:** Using the full internal hostname i.e. http://postgresql.<your-namespace>.svc.cluster.local:5432
 
 The `pgvector` extension must be manually enabled in the server. This can only be done as a Superuser (above account won't work). The easiest way is to:
 

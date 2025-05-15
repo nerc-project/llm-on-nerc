@@ -23,27 +23,27 @@ A prebuilt image is available at: [https://quay.io/troyer/mlflow-server:latest](
 
     -   **01-mlflow-postgres.yml**: Defines all objects required to setup a standalone **PostgreSQL** database.
 
-            This allow allow you to set your own database info via Secrets:
+        This allow allow you to set your own database info via Secrets:
 
-                -   **database-name:** vectordb  # Change this with your own value
+        -   **database-name:** vectordb  # Change this with your own value
 
-                -   **database-password:** vectordb  # Change this with your own value
+        -   **database-password:** vectordb  # Change this with your own value
 
-                -   **database-user:** vectordb  # Change this with your own value
+        -   **database-user:** vectordb  # Change this with your own value
 
     -   **02-mlflow-minio.yml**: Defines all objects required to setup a **MinIO** object storage instance:
-    
-            -   Deploys a MinIO instance in your project namespace.
 
-            -   Creates one storage bucket within the MinIO instance named as `mlflow-bucket`.
-            
-            -   Generates a random **Root User**, which can also be used as the *Access Key*,
+        -   Deploys a MinIO instance in your project namespace.
+
+        -   Creates one storage bucket within the MinIO instance named as `mlflow-bucket`.
+
+        -   Generates a random **Root User**, which can also be used as the *Access Key*,
             and a **Root User Password**, which serves as the *Secret Key* for accessing
             both the MinIO API and the MinIO Console.
-            
-            -   Installs all required network policies.
 
-    -   **03-mlflow-server.yml**: Creates a **Mlflow Server** that connects 
+        -   Installs all required network policies.
+
+    -   **03-mlflow-server.yml**: Creates a **Mlflow Server** that connects
 
 You can run this `oc` command: `oc apply -f ./standalone/.` to execute all of the above described YAML files located in the **standalone** folder at once.
 
@@ -80,9 +80,9 @@ The API is now accessible at the endpoints:
 
     You can use either the service name or the fully qualified internal Hostname for service routing, as shown below:
 
-        -   **Option 1:** Using the service name i.e. http://mlflow-service:5000
+    -   **Option 1:** Using the service name i.e. http://mlflow-service:5000
 
-        -   **Option 2:** Using the full internal hostname i.e. http://mlflow-service.<your-namespace>.svc.cluster.local:5000
+    -   **Option 2:** Using the full internal hostname i.e. http://mlflow-service.<your-namespace>.svc.cluster.local:5000
 
 -   defined by your Route, accessible externally through https, e.g. `https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org`.
 
@@ -101,7 +101,7 @@ Then you can run the following python experiment scripts:
 -   **01-test_remote.py**: Please open and edit the Python file to set the tracking URI to your own remote MLflow server and then run:
 
     ```sh
-    (venv)$ python examples/01-test_remote.py 
+    (venv)$ python examples/01-test_remote.py
     2025/05/15 18:36:13 INFO mlflow.tracking.fluent: Experiment with name 'test_experiment1' does not exist. Creating a new experiment.
     Run logged successfully!
     🏃 View run nebulous-ant-535 at: https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org/#/experiments/1/runs/55f01904bd914be880fe9fd1fdbcc515
@@ -111,7 +111,7 @@ Then you can run the following python experiment scripts:
 -   **02-test_remote.py**: Please open and edit the Python file to set the tracking URI to your own remote MLflow server. Also, you need to set the S3/MinIO endpoint URL to your MinIO server API and the S3/MinIO credentials i.e. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` and then run:
 
     ```sh
-    (venv)$ python examples/02-test_remote.py 
+    (venv)$ python examples/02-test_remote.py
     https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org
     2025/05/15 18:36:34 INFO mlflow.tracking.fluent: Experiment with name 'test_experiment2' does not exist. Creating a new experiment.
     Artifact sample_plot.png logged successfully!
