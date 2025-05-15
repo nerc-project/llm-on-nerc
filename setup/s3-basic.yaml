@@ -21,25 +21,6 @@ subjects:
   name: minio-setup
 ---
 apiVersion: v1
-kind: Service
-metadata:
-  name: minio-service
-  labels:
-    app: minio
-spec:
-  ports:
-  - name: api
-    port: 9000
-    targetPort: api
-  - name: console
-    port: 9090
-    targetPort: 9090
-  selector:
-    app: minio
-  sessionAffinity: None
-  type: ClusterIP
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: minio-pvc
@@ -148,9 +129,35 @@ spec:
         image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
         imagePullPolicy: IfNotPresent
         name: create-minio-root-user
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
       restartPolicy: Never
       serviceAccount: minio-setup
       serviceAccountName: minio-setup
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-service
+  labels:
+    app: minio
+spec:
+  ports:
+  - name: api
+    port: 9000
+    targetPort: api
+  - name: console
+    port: 9090
+    targetPort: 9090
+  selector:
+    app: minio
+  sessionAffinity: None
+  type: ClusterIP
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -158,7 +165,6 @@ metadata:
   name: minio-console
   labels:
     app: minio
-    app.kubernetes.io/part-of: minio
 spec:
   port:
     targetPort: console
@@ -177,7 +183,6 @@ metadata:
   name: minio-s3
   labels:
     app: minio
-    app.kubernetes.io/part-of: minio
 spec:
   port:
     targetPort: api

@@ -85,7 +85,15 @@ To delete all resources if not necessary just run `oc delete -f ./standalone/.` 
 
 The API is now accessible at the endpoints:
 
--   defined by your Service, accessible internally on port **11434** using http. E.g. `http://ollama-service.<your-namespace>.svc.cluster.local:11434`.
+-   defined by your Service, accessible internally on port **11434** using http.
+
+    This is accessible **within the cluster only**, such as from the NERC RHOAI Workbench hosted Jupyter Notebooks or another pod within your project namespace.
+
+    You can use either the service name or the fully qualified internal Hostname for service routing, as shown below:
+
+        -   **Option 1:** Using the service name i.e. http://ollama-service:11434
+
+        -   **Option 2:** Using the full internal hostname i.e. http://ollama-service.<your-namespace>.svc.cluster.local:11434
 
 -   defined by your Route, accessible externally through https, e.g. `https://ollama-route-<your-namespace>.apps.shift.nerc.mghpcc.org`.
 

@@ -56,7 +56,15 @@ To delete all resources if not necessary just run `oc delete -f ./standalone/.` 
 
 ## Usage
 
-After applying all those files you can internally access your PostgreSQL+pgvector server running on port **5432** using http, accessible at `http://postgresql.<your-namespace>.svc.cluster.local:5432`
+After applying all those files you can internally access your PostgreSQL+pgvector server running on port **5432** using http.
+
+This is accessible **within the cluster only**, such as from the NERC RHOAI Workbench hosted Jupyter Notebooks or another pod within your project namespace.
+
+You can use either the service name or the fully qualified internal Hostname for service routing, as shown below:
+
+    -   **Option 1:** Using the service name i.e. http://postgresql:5432
+
+    -   **Option 2:** Using the full internal hostname i.e. http://postgresql.<your-namespace>.svc.cluster.local:5432
 
 The `pgvector` extension must be manually enabled in the server. This can only be done as a Superuser (above account won't work). The easiest way is to:
 

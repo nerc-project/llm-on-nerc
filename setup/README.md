@@ -8,7 +8,9 @@
 
     -   Deploys a MinIO instance in your OpenShift project namespace.
 
-    -   Generates a random user ID and password for the MinIO Console.
+    -   Generates a random **Root User**, which can also be used as the *Access Key*,
+        and a **Root User Password**, which serves as the *Secret Key* for accessing
+        both the MinIO API and the MinIO Console.
 
     -   Installs all required network policies.
 
@@ -16,9 +18,11 @@
 
     -   Deploys a MinIO instance in your project namespace.
 
-    -   Creates one storage buckets within the MinIO instance.
+    -   Creates one storage bucket within the MinIO instance.
 
-    -   Generates a random user ID and password for the MinIO Console.
+    -   Generates a random **Root User**, which can also be used as the *Access Key*,
+        and a **Root User Password**, which serves as the *Secret Key* for accessing
+        both the MinIO API and the MinIO Console.
 
     -   Establishes a data connection in your RHOAI project - for a bucket - using the generated credentials.
 

@@ -908,7 +908,7 @@ externalPulsar:
 # - these configs are only used when `externalKafka.enabled` is true
 # - note that the following are just examples, you should confirm the
 #   value of brokerList and mechanisms according to the actual external
-#   Kafka configuration. E.g. If you select the AWS MSK, the configuration
+#   Kafka configuration. For e.g. If you select the AWS MSK, the configuration
 #   should look something like this:
 #   externalKafka:
 #     enabled: true

@@ -32,7 +32,10 @@ The following **Databases** can be used as a Vector Store for Retrieval Augmente
 
 - [AnythingLLM](llm-clients/anythingllm/README.md): [AnythingLLM](https://anythingllm.com/) is an all-in-one AI application that supports any LLM, any document, and any agent while ensuring full privacy. Here, it is implemented as a NERC RHOAI custom workbench, allowing seamless integration with your LLM and other resources.
 
-
 ### setup
 
 This folder contains YAML scripts for setting up local S3 storage (MinIO) based on your requirements - whether you need a basic setup without pre-configured buckets or a setup with buckets and data connections in your NERC RHOAI environment.
+
+### MLflow: A Machine Learning Lifecycle Platform
+
+This folder contains YAML scripts for deploying MLflow on NERC OpenShift, along with example Python test scripts to run experiments on the deployed setup.
