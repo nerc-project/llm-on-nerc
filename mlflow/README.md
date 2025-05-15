@@ -82,7 +82,7 @@ The API is now accessible at the endpoints:
 
     -   **Option 1:** Using the service name i.e. http://mlflow-service:5000
 
-    -   **Option 2:** Using the full internal hostname i.e. http://mlflow-service.<your-namespace>.svc.cluster.local:5000
+    -   **Option 2:** Using the full internal hostname i.e. `http://mlflow-service.<your-namespace>.svc.cluster.local:5000`
 
 -   defined by your Route, accessible externally through https, e.g. `https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org`.
 

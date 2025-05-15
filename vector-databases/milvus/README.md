@@ -93,7 +93,7 @@ The API is now accessible at the endpoints:
 
     -   **Option 1:** Using the service name i.e. http://ollama-service:11434
 
-    -   **Option 2:** Using the full internal hostname i.e. http://ollama-service.<your-namespace>.svc.cluster.local:11434
+    -   **Option 2:** Using the full internal hostname i.e. `http://ollama-service.<your-namespace>.svc.cluster.local:11434`
 
 -   defined by your Route, accessible externally through https, e.g. `https://ollama-route-<your-namespace>.apps.shift.nerc.mghpcc.org`.
 
