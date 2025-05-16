@@ -118,8 +118,10 @@ Then you can run the following python experiment scripts:
     🏃 View run painted-cow-955 at: https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org/#/experiments/2/runs/05ce7b095b5049e0ad72e0ef25cf48e3
     ```
 
+![MLflow Experiments](images/mlflow-experiments.png)
+
 By clicking on the **test_experiment2** run in the MLflow GUI, you can verify that the experiment has successfully stored the artifact:
 
-![MLflow Experiment Artifact](images/mlflow-experiments.png)
+![MLflow Experiment Artifact](images/mlflow-experiment-artifact.png)
 
 **Very Important**: There are ways we can improve this setup - for example, by adding basic authentication to the MLflow GUI to ensure that only authorized users can access it.
