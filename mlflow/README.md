@@ -68,6 +68,8 @@ service/mlflow-service created
 route.route.openshift.io/mlflow-route created
 ```
 
+## Clean Up
+
 To delete all resources if not necessary just run `oc delete -f ./standalone/.`.
 
 ## Usage
@@ -120,7 +122,8 @@ Then you can run the following python experiment scripts:
 
 ![MLflow Experiments](images/mlflow-experiments.png)
 
-By clicking on the **test_experiment2** run in the MLflow GUI, you can verify that the experiment has successfully stored the artifact:
+By clicking on the **test_experiment2** run in the MLflow GUI, you can verify that the experiment has successfully stored the artifact under the **Artifacts** tab
+as shown below:
 
 ![MLflow Experiment Artifact](images/mlflow-experiment-artifact.png)
 
