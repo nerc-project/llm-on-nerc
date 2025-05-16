@@ -91,7 +91,7 @@ The API is now accessible at the endpoints:
 
     You can use either the service name or the fully qualified internal Hostname for service routing, as shown below:
 
-    -   **Option 1:** Using the service name i.e. http://ollama-service:11434
+    -   **Option 1:** Using the service name i.e. `http://ollama-service:11434`
 
     -   **Option 2:** Using the full internal hostname i.e. `http://ollama-service.<your-namespace>.svc.cluster.local:11434`
 

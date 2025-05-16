@@ -19,9 +19,11 @@ A prebuilt image is available at: [https://quay.io/troyer/mlflow-server:latest](
     cd llm-on-nerc/mlflow
     ```
 
-2. In the `standalone` folder, you will find the following YAML files that allow you to easily deploy a **MLflow** infrastructure:
+2. In the `standalone` folder, you will find the following YAML files that allow
+    you to easily deploy a **MLflow** infrastructure:
 
-    -   **01-mlflow-postgres.yml**: Defines all objects required to setup a standalone **PostgreSQL** database.
+    -   **01-mlflow-postgres.yml**: Defines all objects required to setup a standalone
+        **PostgreSQL** database.
 
         This allow allow you to set your own database info via Secrets:
 
@@ -31,7 +33,8 @@ A prebuilt image is available at: [https://quay.io/troyer/mlflow-server:latest](
 
         -   **database-user:** vectordb  # Change this with your own value
 
-    -   **02-mlflow-minio.yml**: Defines all objects required to setup a **MinIO** object storage instance:
+    -   **02-mlflow-minio.yml**: Defines all objects required to setup a **MinIO**
+        object storage instance:
 
         -   Deploys a MinIO instance in your project namespace.
 
@@ -45,7 +48,8 @@ A prebuilt image is available at: [https://quay.io/troyer/mlflow-server:latest](
 
     -   **03-mlflow-server.yml**: Creates a **Mlflow Server** that connects
 
-You can run this `oc` command: `oc apply -f ./standalone/.` to execute all of the above described YAML files located in the **standalone** folder at once.
+You can run this `oc` command: `oc apply -f ./standalone/.` to execute all of the
+above described YAML files located in the **standalone** folder at once.
 
 ```sh
 oc apply -f ./standalone/.
@@ -74,29 +78,91 @@ To delete all resources if not necessary just run `oc delete -f ./standalone/.`.
 
 ## Usage
 
-The API is now accessible at the endpoints:
+1. Go to the [NERC's OpenShift Web Console](https://console.apps.shift.nerc.mghpcc.org).
 
--   defined by your Service, accessible internally on port **5000** using http.
+2. Click on the **Perspective Switcher** drop-down menu and select **Developer**.
 
-    This is accessible **within the cluster only**, such as from the NERC RHOAI Workbench hosted Jupyter Notebooks or another pod within your project namespace.
+3. In the **Navigation Menu**, click **Topology** view and make sure that you are
+    on the MLflow project.
 
-    You can use either the service name or the fully qualified internal Hostname for service routing, as shown below:
+    ![MLflow Setup Pods](images/mlflow-setup-pods.png)
 
-    -   **Option 1:** Using the service name i.e. http://mlflow-service:5000
+4. Check the `mlflow-deployment` pod circle that is in dark blue color (this means
+  it has finished deploying successfully and the pod is "Running").
 
-    -   **Option 2:** Using the full internal hostname i.e. `http://mlflow-service.<your-namespace>.svc.cluster.local:5000`
+    The API is now accessible at the endpoints:
 
--   defined by your Route, accessible externally through https, e.g. `https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org`.
+    -   defined by your Service, accessible internally on port **5000** using http.
 
-**Accessing MLFLow GUI Dashboard:**
+        This is accessible **within the cluster only**, such as from the NERC RHOAI
+        Workbench hosted Jupyter Notebooks or another pod within your project namespace.
 
-Go to [`https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org`](https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org). This show the MLflow GUI as shown below:
+        You can use either the service name or the fully qualified internal **Hostname**
+        for service routing, as shown below:
 
-![MLFLow GUI](images/mlflow-gui.png)
+        -   **Option 1:** Using the service name i.e. `http://mlflow-service:5000`
+
+        -   **Option 2:** Using the full internal hostname i.e. `http://mlflow-service.<your-namespace>.svc.cluster.local:5000`
+
+        ![MLflow Service Endpoints](images/mlflow-internal-service-endpoints.png)
+
+    -   defined by your Route, accessible externally through https, e.g. `https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org`.
+
+        **Accessing MLflow GUI Dashboard:**
+
+        When the application has been deployed successfully, you can either open
+        the application URL using the **Open URL** icon in the top right corner
+        of the Pod's circle as shown below or you can naviate to the route URL
+        by navigating to the "Routes" section under the _Location_ path as shown
+        below:
+
+        ![MLflow Route](images/mlflow-route.png)
+
+        This show the MLflow GUI as shown below:
+
+        ![MLflow GUI](images/mlflow-gui.png)
+
+## Adding MLflow to Training Code
+
+```python
+import mlflow
+from sklearn.linear_model import LogisticRegression
+
+# Set the tracking URI to your remote MLflow server
+
+# This Route endpoint is accessible externally over **HTTPS**:
+mlflow.set_tracking_uri("https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org")  # Replace with your own remote server's route
+
+# Alternatively: Set the tracking URI to a local MLflow server's service endpoint. This is accessible internally over **HTTP** on the specified port.
+
+# This option is accessible within the cluster only, such as from:
+# -   NERC RHOAI Workbench (Jupyter Notebooks)
+# -   Another pod within your project namespace
+
+# You can use either the service name or the fully qualified internal Hostname:
+
+# Option 1: Using the service name
+# mlflow.set_tracking_uri("http://mlflow-service:5000")
+
+# Option 2: Using the full internal Hostname
+# mlflow.set_tracking_uri("http://mlflow-service.<your-namespace>.svc.cluster.local:5000")
+
+# Setting the experiment
+mlflow.set_experiment("my-experiment")
+
+if __name__ == "__main__":
+    # Enabling automatic logging for scikit-learn runs
+    mlflow.sklearn.autolog()
+
+    # Starting a logging run
+    with mlflow.start_run():
+        # train
+```
 
 ## Examples
 
-Set up your Python Virtual environment and install all required packages by running: `pip install -r examples/requirements.txt` inside the activated virtual environment.
+Set up your Python Virtual environment and install all required packages by running:
+`pip install -r examples/requirements.txt` inside the activated virtual environment.
 
 Then you can run the following python experiment scripts:
 
@@ -122,7 +188,8 @@ Then you can run the following python experiment scripts:
 
 ![MLflow Experiments](images/mlflow-experiments.png)
 
-By clicking on the **test_experiment2** run in the MLflow GUI, you can verify that the experiment has successfully stored the artifact under the **Artifacts** tab
+By clicking on the **test_experiment2** run in the MLflow GUI, you can verify that
+the experiment has successfully stored the artifact under the **Artifacts** tab
 as shown below:
 
 ![MLflow Experiment Artifact](images/mlflow-experiment-artifact.png)
