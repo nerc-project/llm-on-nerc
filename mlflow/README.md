@@ -2,6 +2,28 @@
 
 [MLflow](https://mlflow.org/) is an open-source platform designed to help machine learning practitioners and teams manage the complexities of the ML lifecycle. It provides tools to make every phase of a machine learning project—development, tracking, deployment, and reproducibility - more manageable and traceable.
 
+# MLflow Server Setup
+
+Our MLflow Server Setup has a straightforward architecture, as illustrated in the
+figure below:
+
+![MLflow Setup](images/minio-setup.png)
+
+It consists of three main components: a backend store that holds experiment metadata
+(such as hyperparameters and metrics), an artifact store for storing all artifacts
+(like model files), and the MLflow server, which provides an API and a UI for
+viewing and recording this information.
+
+In our setup, we are going to use:
+
+**PostgreSQL database** - for storing MLflow metadata
+
+**MinIO S3 Storage** - for storing the MLflow artifacts such as model training
+files (such as models, data, and visualizations, etc.). These artifacts are crucial
+for reproducing and understanding the results of a machine learning experiment.
+To manage and store these artifacts in a scalable, durable, and secure manner, an
+S3 bucket is required.
+
 ## Container image
 
 **Note:** You can use the provided [Containerfile](Containerfile) to build a custom container image or reference your own. Currently, the `03-mlflow-server.yml` deployment file references the image `quay.io/troyer/mlflow-server:latest` in the `spec.containers.image` section of the Deployment YAML.
@@ -176,7 +198,7 @@ Then you can run the following python experiment scripts:
     🧪 View experiment at: https://mlflow-route-<your-namespace>.apps.shift.nerc.mghpcc.org/#/experiments/1
     ```
 
--   **02-test_remote.py**: Please open and edit the Python file to set the tracking URI to your own remote MLflow server. Also, you need to set the S3/MinIO endpoint URL to your MinIO server API and the S3/MinIO credentials i.e. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` and then run:
+-   **02-test_remote.py**: Please open and edit the Python file to set the tracking URI to your own remote MLflow server. Also, you need to set the MinIO S3 endpoint URL to your MinIO server API and the MinIO S3 credentials i.e. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` and then run:
 
     ```sh
     (venv)$ python examples/02-test_remote.py
