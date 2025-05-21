@@ -112,15 +112,8 @@ spec:
       - name: oauth-proxy
         image: 'registry.redhat.io/openshift4/ose-oauth-proxy:v4.12'
         imagePullPolicy: IfNotPresent
-        args:
-          - --https-address=:8443
-          - --provider=openshift
-          - --openshift-service-account=mlflow-setup
-          - --upstream=http://localhost:5000
-          - --tls-cert=/etc/tls/private/tls.crt
-          - --tls-key=/etc/tls/private/tls.key
-          - --cookie-secret=SECRET
-          - --openshift-sar={"namespace":\"$OPENSHIFT_NAMESPACE\","resource":"services","resourceName":"mlflow-service","verb":"get"}
+        command: ["/bin/sh"]
+        args: ["/opt/oauth-proxy-wrapper.sh"]
         env:
           - name: OPENSHIFT_NAMESPACE
             valueFrom:
@@ -157,9 +150,16 @@ spec:
             cpu: "100m"
             memory: "256Mi"
         volumeMounts:
+          - name: wrapper-script
+            mountPath: /opt/oauth-proxy-wrapper.sh
+            subPath: oauth-proxy-wrapper.sh
           - name: oauth-tls
             mountPath: /etc/tls/private
       volumes:
+      - name: wrapper-script
+        configMap:
+          name: oauth-proxy-wrapper
+          defaultMode: 0755
       - name: oauth-tls
         secret:
           defaultMode: 420
