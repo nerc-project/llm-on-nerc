@@ -1,4 +1,13 @@
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mlflow-setup
+  labels:
+    app: mlflow
+  annotations:
+    serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"mlflow-route"}}'
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -67,6 +76,8 @@ spec:
               secretKeyRef:
                 name: mlflow-postgresql-secret
                 key: database-name
+          - name: AWS_CA_BUNDLE
+            value: /run/secrets/kubernetes.io/serviceaccount/service-ca.crt
         ports:
           - name: api
             containerPort: 5000
@@ -98,7 +109,64 @@ spec:
           requests:
             cpu: "500m"
             memory: "512Mi"
+      - name: oauth-proxy
+        image: 'registry.redhat.io/openshift4/ose-oauth-proxy:v4.12'
+        imagePullPolicy: IfNotPresent
+        args:
+          - --https-address=:8443
+          - --provider=openshift
+          - --openshift-service-account=mlflow-setup
+          - --upstream=http://localhost:5000
+          - --tls-cert=/etc/tls/private/tls.crt
+          - --tls-key=/etc/tls/private/tls.key
+          - --cookie-secret=SECRET
+          - --openshift-sar={"namespace":\"$OPENSHIFT_NAMESPACE\","resource":"services","resourceName":"mlflow-service","verb":"get"}
+        env:
+          - name: OPENSHIFT_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace  # Automatically gets the namespace where the pod is running
+        ports:
+          - name: oauth-proxy
+            containerPort: 8443
+        livenessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+        volumeMounts:
+          - mountPath: /etc/tls/private
+            name: oauth-tls
+      volumes:
+      - name: oauth-tls
+        secret:
+          defaultMode: 420
+          secretName: mlflow-server-tls
       restartPolicy: Always
+      serviceAccount: mlflow-setup
+      serviceAccountName: mlflow-setup
 ---
 apiVersion: v1
 kind: Service
@@ -106,12 +174,18 @@ metadata:
   name: mlflow-service
   labels:
     app: mlflow
+  annotations:
+    service.alpha.openshift.io/serving-cert-secret-name: mlflow-server-tls
 spec:
   ports:
     - name: api
       protocol: TCP
       port: 5000
       targetPort: api
+    - name: oauth-proxy
+      protocol: TCP
+      port: 8443
+      targetPort: oauth-proxy
   selector:
     app: mlflow
   sessionAffinity: None
@@ -125,10 +199,10 @@ metadata:
     app: mlflow
 spec:
   port:
-    targetPort: api
+    targetPort: oauth-proxy
   tls:
     insecureEdgeTerminationPolicy: Redirect
-    termination: edge
+    termination: reencrypt
   to:
     kind: Service
     name: mlflow-service
