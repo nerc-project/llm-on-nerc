@@ -157,8 +157,8 @@ spec:
             cpu: "100m"
             memory: "256Mi"
         volumeMounts:
-          - mountPath: /etc/tls/private
-            name: oauth-tls
+          - name: oauth-tls
+            mountPath: /etc/tls/private
       volumes:
       - name: oauth-tls
         secret:
