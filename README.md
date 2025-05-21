@@ -34,8 +34,8 @@ The following **Databases** can be used as a Vector Store for Retrieval Augmente
 
 ### setup
 
-This folder contains YAML scripts for setting up local S3 storage (MinIO) based on your requirements - whether you need a basic setup without pre-configured buckets or a setup with buckets and data connections in your NERC RHOAI environment.
+[This folder](setup/README.md) contains YAML scripts for setting up local S3 storage (MinIO) based on your requirements - whether you need a basic setup without pre-configured buckets or a setup with buckets and data connections in your NERC RHOAI environment.
 
 ### MLflow: A Machine Learning Lifecycle Platform
 
-This folder contains YAML scripts for deploying MLflow on NERC OpenShift, along with example Python test scripts to run experiments on the deployed setup.
+[This folder](mlflow/README.md) contains YAML scripts for deploying MLflow on NERC OpenShift, along with example Python test scripts to run experiments on the deployed setup.
