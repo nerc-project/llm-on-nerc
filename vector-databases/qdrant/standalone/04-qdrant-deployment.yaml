@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qdrant-deployment
+  labels:
+    app: qdrant
+    app.kubernetes.io/part-of: qdrant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qdrant
+  template:
+    metadata:
+      labels:
+        app: qdrant
+    spec:
+      volumes:
+      - name: qdrant-storage
+        persistentVolumeClaim:
+          claimName: qdrant-storage-pvc
+      - name: qdrant-snapshot
+        persistentVolumeClaim:
+          claimName: qdrant-snapshots-pvc
+      containers:
+      - name: qdrant-container
+        image: qdrant/qdrant:v1.13.4
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: QDRANT__SERVICE__API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: qdrant-key
+              key: QDRANT__SERVICE__API_KEY
+        ports:
+        - containerPort: 6333
+        - containerPort: 6334
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+        volumeMounts:
+        - name: qdrant-storage
+          mountPath: /qdrant/storage
+        - name: qdrant-snapshot
+          mountPath: /qdrant/snapshots
+      restartPolicy: Always
+      # imagePullSecrets:
+      #   - name: <your-secret-name>
+  strategy:
+    type: Recreate

@@ -1,0 +1,9 @@
+.ipynb_checkpoints/
+*.pem
+*.env
+.vscode
+venv
+**/Chart.lock
+**/charts/*.tgz
+tmp/*
+!tmp/.gitkeep

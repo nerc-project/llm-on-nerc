@@ -1,0 +1,136 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-deployment
+  labels:
+    app: mlflow
+    app.kubernetes.io/part-of: mlflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      containers:
+      - name: mlflow
+        image: 'quay.io/troyer/mlflow-server:latest'
+        imagePullPolicy: IfNotPresent
+        command:
+          - mlflow
+        args:
+          - server
+          - --host
+          - 0.0.0.0
+          - --backend-store-uri
+          - postgresql://$(MLFLOW_DATABASE_USERNAME):$(ENCODED_DATABASE_PASSWORD)@$(MLFLOW_DATABASE_HOST):5432/$(MLFLOW_DATABASE_NAME)
+          - --serve-artifacts
+          - --artifacts-destination
+          - s3://$(MLFLOW_S3_BUCKET_NAME)
+        env:
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-minio-root-user
+                key: MINIO_ROOT_USER
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-minio-root-user
+                key: MINIO_ROOT_PASSWORD
+          - name: MLFLOW_S3_ENDPOINT_URL
+            value: "http://mlflow-minio-service:9000"
+          - name: MLFLOW_S3_IGNORE_TLS
+            value: "true"
+          - name: MLFLOW_S3_BUCKET_NAME
+            value: "mlflow-bucket"
+          - name: MLFLOW_DATABASE_HOST
+            value: "mlflow-postgresql-service"
+          - name: MLFLOW_DATABASE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-postgresql-secret
+                key: database-user
+          - name: ENCODED_DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-postgresql-secret
+                key: database-password
+          - name: MLFLOW_DATABASE_NAME
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-postgresql-secret
+                key: database-name
+        ports:
+          - name: api
+            containerPort: 5000
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: api
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 100
+          timeoutSeconds: 8
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: api
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 100
+          timeoutSeconds: 8
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-service
+  labels:
+    app: mlflow
+spec:
+  ports:
+    - name: api
+      protocol: TCP
+      port: 5000
+      targetPort: api
+  selector:
+    app: mlflow
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: mlflow-route
+  labels:
+    app: mlflow
+spec:
+  port:
+    targetPort: api
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: mlflow-service
+    weight: 100
+  wildcardPolicy: None

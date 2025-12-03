@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-deployment
+  labels:
+    app: ollama
+    app.kubernetes.io/part-of: ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      volumes:
+      - name: ollama-volume
+        persistentVolumeClaim:
+          claimName: ollama-volume-pvc
+      containers:
+      - name: ollama-container
+        image: ollama/ollama:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: api
+          containerPort: 11434
+          protocol: TCP
+        env:
+        - name: OLLAMA_NUM_PARALLEL
+          value: '4'
+        - name: OLLAMA_MAX_LOADED_MODELS
+          value: '4'
+        - name: MODEL_ID
+          value: tinyllama:1.1b
+        - name: OLLAMA_MODELS
+          value: /.ollama/models
+        - name: OLLAMA_HOST
+          value: 0.0.0.0
+        - name: OLLAMA_KEEP_ALIVE
+          value: '-1m'
+        resources:
+          limits:
+            cpu: '5'
+            memory: 12Gi
+            # nvidia.com/gpu: '1'
+          requests:
+            cpu: '4'
+            memory: 10Gi
+            # nvidia.com/gpu: '1'
+        livenessProbe:
+          httpGet:
+            path: /
+            port: api
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 100
+          timeoutSeconds: 8
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: api
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "/bin/ollama pull $MODEL_ID"]
+        volumeMounts:
+        - name: ollama-volume
+          mountPath: /.ollama
+      restartPolicy: Always
+      # tolerations:
+      #   - key: nvidia.com/gpu.product
+      #     operator: Equal
+      #     value: Tesla-V100-PCIE-32GB
+      #     effect: NoSchedule
+      # nodeSelector:
+      #   nvidia.com/gpu.product: Tesla-V100-PCIE-32GB
+  strategy:
+    type: Recreate
