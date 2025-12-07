@@ -60,7 +60,9 @@
 
     Ensure the UI is connected to your vLLM endpoint by sending a simple prompt and verifying the response.
 
-## To Remove the Helm Chart
+## To Remove the Open WebUI Helm Chart
+
+Run the following command to cleanly uninstall and delete the Open WebUI Helm release:
 
 ```sh
 helm uninstall openwebui
