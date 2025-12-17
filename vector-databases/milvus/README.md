@@ -95,7 +95,7 @@ The API is now accessible at the endpoints:
 
     -   **Option 2:** Using the full internal hostname i.e. `http://milvus-service.<your-namespace>.svc.cluster.local:11434`
 
-**NOTE:** Milvus is not exposed via a Route, so it cannot be accessed externally over *HTTPS*. To access it from your **Attu deployment**, use the environment variable `MILVUS_URL` defined here:  
+**NOTE:** Milvus is not exposed via a Route, so it cannot be accessed externally over *HTTPS*. To access it from your **Attu deployment**, use the environment variable `MILVUS_URL` defined here:
 https://github.com/nerc-project/llm-on-nerc/blob/main/vector-databases/milvus/standalone/attu-deployment.yaml#L24-L25
 
 Here, you should point `MILVUS_URL` to either the Milvus **Service name** or the **full internal hostname**, without the `http://` protocol.
