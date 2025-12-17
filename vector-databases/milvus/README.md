@@ -85,17 +85,20 @@ To delete all resources if not necessary just run `oc delete -f ./standalone/.` 
 
 The API is now accessible at the endpoints:
 
--   defined by your Service, accessible internally on port **11434** using http.
+-   defined by your Service, accessible internally on port **19530** using http.
 
     This is accessible **within the cluster only**, such as from the NERC RHOAI Workbench hosted Jupyter Notebooks or another pod within your project namespace.
 
     You can use either the service name or the fully qualified internal Hostname for service routing, as shown below:
 
-    -   **Option 1:** Using the service name i.e. `http://ollama-service:11434`
+    -   **Option 1:** Using the service name i.e. `http://milvus-service:11434`
 
-    -   **Option 2:** Using the full internal hostname i.e. `http://ollama-service.<your-namespace>.svc.cluster.local:11434`
+    -   **Option 2:** Using the full internal hostname i.e. `http://milvus-service.<your-namespace>.svc.cluster.local:11434`
 
--   defined by your Route, accessible externally through https, e.g. `https://ollama-route-<your-namespace>.apps.shift.nerc.mghpcc.org`.
+**NOTE:** Milvus is not exposed via a Route, so it cannot be accessed externally over *HTTPS*. To access it from your **Attu deployment**, use the environment variable `MILVUS_URL` defined here:  
+https://github.com/nerc-project/llm-on-nerc/blob/main/vector-databases/milvus/standalone/attu-deployment.yaml#L24-L25
+
+Here, you should point `MILVUS_URL` to either the Milvus **Service name** or the **full internal hostname**, without the `http://` protocol.
 
 -   defined by your Attu Route, accessible externally through https, e.g. `https://attu-route-<your-namespace>.apps.shift.nerc.mghpcc.org`.
 
