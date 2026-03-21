@@ -1,0 +1,65 @@
+# This vLLM Dockerfile is used to construct image that can build and run vLLM on x86 CPU platform.
+
+FROM registry.access.redhat.com/ubi9/python-311 AS cpu-test-1
+
+USER 0
+
+RUN dnf update -y && \
+    dnf install -y cmake gcc gcc-c++ make automake numactl-devel && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+ENV LD_PRELOAD=""
+
+RUN echo 'ulimit -c 0' >> ~/.bashrc
+
+RUN pip install intel_extension_for_pytorch==2.5.0
+
+WORKDIR /workspace
+RUN git clone https://github.com/RHRolun/vllm.git && \
+    cd vllm && \
+    git checkout 94ad14587f80c74df2195ab9e1d6b983b57be676
+
+ARG PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"
+ENV PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL}
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,src=requirements-build.txt,target=requirements-build.txt \
+    pip install --upgrade pip && \
+    pip install -r requirements-build.txt
+
+FROM cpu-test-1 AS build
+
+WORKDIR /workspace/vllm
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,src=requirements-common.txt,target=requirements-common.txt \
+    --mount=type=bind,src=requirements-cpu.txt,target=requirements-cpu.txt \
+    pip install -v -r requirements-cpu.txt
+
+COPY . .
+ARG GIT_REPO_CHECK=0
+RUN --mount=type=bind,source=.git,target=.git \
+    if [ "$GIT_REPO_CHECK" != 0 ]; then bash tools/check_repo.sh ; fi
+
+# Support for building with non-AVX512 vLLM
+ARG VLLM_CPU_DISABLE_AVX512
+ENV VLLM_CPU_DISABLE_AVX512=${VLLM_CPU_DISABLE_AVX512}
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,source=.git,target=.git \
+    VLLM_TARGET_DEVICE=cpu python3 setup.py bdist_wheel && \
+    pip install dist/*.whl && \
+    rm -rf dist
+
+WORKDIR /workspace/
+
+RUN ln -s /workspace/vllm/tests && ln -s /workspace/vllm/examples && ln -s /workspace/vllm/benchmarks
+
+# Install development dependencies (for testing)
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -e tests/vllm_test_utils
+
+USER 1001
+
+ENTRYPOINT ["python3", "-m", "vllm.entrypoints.openai.api_server"]

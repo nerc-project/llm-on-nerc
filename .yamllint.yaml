@@ -1,3 +1,4 @@
+# .yamllint
 extends: default
 
 rules:
@@ -5,3 +6,8 @@ rules:
   document-start: disable
   indentation:
     indent-sequences: whatever
+
+# Ignore certain directories or Helm template files
+ignore: |
+  llm-clients/openwebui/charts/**
+  llm-clients/openwebui/templates/**/*.tpl

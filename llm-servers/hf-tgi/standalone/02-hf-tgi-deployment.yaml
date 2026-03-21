@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hf-tgi-deployment
+  labels:
+    app: hf-tgi
+    app.kubernetes.io/part-of: hf-tgi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hf-tgi
+  template:
+    metadata:
+      labels:
+        app: hf-tgi
+    spec:
+      volumes:
+        - name: models-cache
+          persistentVolumeClaim:
+            claimName: models-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+      containers:
+        - name: server
+          image: 'ghcr.io/huggingface/text-generation-inference:1.2.0'
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MODEL_ID
+              value: google/flan-t5-xl
+            - name: MAX_INPUT_LENGTH
+              value: '1024'
+            - name: MAX_TOTAL_TOKENS
+              value: '2048'
+            - name: QUANTIZE
+              value: bitsandbytes
+            - name: HUGGINGFACE_HUB_CACHE
+              value: /models-cache
+            - name: PORT
+              value: '3000'
+            - name: HOST
+              value: '0.0.0.0'
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 3000
+          resources:
+            limits:
+              cpu: '8'
+              memory: 24Gi
+              nvidia.com/gpu: '1'
+            requests:
+              cpu: '6'
+              memory: 20Gi
+              # nvidia.com/gpu: '1'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 100
+            timeoutSeconds: 8
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          # securityContext:
+          #   capabilities:
+          #     drop:
+          #       - ALL
+          #   runAsNonRoot: true
+          #   allowPrivilegeEscalation: false
+          #   seccompProfile:
+          #     type: RuntimeDefault
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 24
+          volumeMounts:
+            - name: models-cache
+              mountPath: /models-cache
+            - name: shm
+              mountPath: /dev/shm
+      restartPolicy: Always
+      tolerations:
+        - key: nvidia.com/gpu.product
+          operator: Equal
+          value: Tesla-V100-PCIE-32GB
+          effect: NoSchedule
+      nodeSelector:
+        nvidia.com/gpu.product: Tesla-V100-PCIE-32GB
+  strategy:
+    type: Recreate
+    # type: RollingUpdate
+    # rollingUpdate:
+    #   maxUnavailable: 25%
+    #   maxSurge: 1

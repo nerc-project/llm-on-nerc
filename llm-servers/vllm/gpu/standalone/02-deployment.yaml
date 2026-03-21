@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-deployment
+  labels:
+    app: vllm-gpu
+    app.kubernetes.io/part-of: vllm-gpu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-gpu
+  template:
+    metadata:
+      labels:
+        app: vllm-gpu
+    spec:
+      volumes:
+        - name: models-cache
+          persistentVolumeClaim:
+            claimName: vllm-models-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+      containers:
+        - name: server
+          image: 'quay.io/rh-aiservices-bu/vllm-openai-ubi9:0.4.2'
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: HUGGING_FACE_HUB_TOKEN
+              value: ''
+          args: [
+            "--model",
+            "mistralai/Mistral-7B-Instruct-v0.2",
+            "--download-dir",
+            "/models-cache",
+            "--dtype", "float16",
+            "--max-model-len", "6144"]
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 8000
+          resources:
+            limits:
+              cpu: '8'
+              memory: 24Gi
+              nvidia.com/gpu: '1'
+            requests:
+              cpu: '6'
+              memory: 20Gi
+              # nvidia.com/gpu: '1'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 100
+            timeoutSeconds: 8
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          # securityContext:
+          #   capabilities:
+          #     drop:
+          #       - ALL
+          #   runAsNonRoot: true
+          #   allowPrivilegeEscalation: false
+          #   seccompProfile:
+          #     type: RuntimeDefault
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 24
+          volumeMounts:
+            - name: models-cache
+              mountPath: /models-cache
+            - name: shm
+              mountPath: /dev/shm
+      restartPolicy: Always
+      tolerations:
+        - key: nvidia.com/gpu.product
+          operator: Equal
+          value: Tesla-V100-PCIE-32GB
+          effect: NoSchedule
+      nodeSelector:
+        nvidia.com/gpu.product: Tesla-V100-PCIE-32GB
+  strategy:
+    type: Recreate
