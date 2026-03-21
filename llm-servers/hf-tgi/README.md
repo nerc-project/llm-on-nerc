@@ -112,3 +112,7 @@ Different environment variables are available in the Deployment so that you can 
 - `HUGGING_FACE_HUB_TOKEN`: if you model requires an authorization to be downloaded (e.g. **Llama2**), use this parameter to enter you Hugging Face API token. The best is to load it from a secret.
 
 **NOTE:** Please refer to the documentation for other parameters you can modify.
+
+## Deploying TGIS with FLAN-T5 Small Model on NERC RHOAI
+
+Alternatively, you can set up the Text Generation Inference Service (TGIS) with the `FLAN-T5 Small` model using single-model serving and a serving runtime, such as the `TGIS Standalone ServingRuntime for KServe`. This approach offers a lightweight and efficient solution for running text generation workloads. Follow the detailed guide [here](https://nerc-project.github.io/nerc-docs/openshift-ai/other-projects/serving-tgis-and-FLAN-T5-Model/) to set up and get started.
