@@ -110,15 +110,24 @@ spec:
             cpu: "500m"
             memory: "512Mi"
       - name: oauth-proxy
-        image: 'registry.redhat.io/openshift4/ose-oauth-proxy:v4.12'
+        # image: 'registry.redhat.io/openshift4/ose-oauth-proxy:v4.12'
+        image: image-registry.openshift-image-registry.svc:5000/openshift/oauth-proxy:v4.4
         imagePullPolicy: IfNotPresent
-        command: ["/bin/sh"]
-        args: ["/opt/oauth-proxy-wrapper.sh"]
-        env:
-          - name: OPENSHIFT_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace  # Automatically gets the namespace where the pod is running
+        # command: ["/bin/sh"]
+        # args: ["/opt/oauth-proxy-wrapper.sh"]
+        # env:
+        #   - name: OPENSHIFT_NAMESPACE
+        #     valueFrom:
+        #       fieldRef:
+        #         fieldPath: metadata.namespace  # Automatically gets the namespace where the pod is running
+        args:
+        - --https-address=:8443
+        - --provider=openshift
+        - --openshift-service-account=mlflow-setup
+        - --upstream=http://localhost:5000
+        - --tls-cert=/etc/tls/private/tls.crt
+        - --tls-key=/etc/tls/private/tls.key
+        - --cookie-secret=SECRET
         ports:
           - name: oauth-proxy
             containerPort: 8443
@@ -150,16 +159,16 @@ spec:
             cpu: "100m"
             memory: "256Mi"
         volumeMounts:
-          - name: wrapper-script
-            mountPath: /opt/oauth-proxy-wrapper.sh
-            subPath: oauth-proxy-wrapper.sh
+          # - name: wrapper-script
+          #   mountPath: /opt/oauth-proxy-wrapper.sh
+          #   subPath: oauth-proxy-wrapper.sh
           - name: oauth-tls
             mountPath: /etc/tls/private
       volumes:
-      - name: wrapper-script
-        configMap:
-          name: oauth-proxy-wrapper
-          defaultMode: 0755
+      # - name: wrapper-script
+      #   configMap:
+      #     name: oauth-proxy-wrapper
+      #     defaultMode: 0755
       - name: oauth-tls
         secret:
           defaultMode: 420
