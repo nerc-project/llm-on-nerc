@@ -1,4 +1,15 @@
 ---
+# Create a proxy service account and ensure it will use the route "mlflow-route"
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mlflow-setup
+  labels:
+    app: mlflow
+  annotations:
+    serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"mlflow-route"}}'
+---
+# Launch a proxy as a sidecar
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -98,7 +109,63 @@ spec:
           requests:
             cpu: "500m"
             memory: "512Mi"
+      - name: oauth-proxy
+        image: 'registry.redhat.io/openshift4/ose-oauth-proxy:v4.12'
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["/opt/oauth-proxy-wrapper.sh"]
+        env:
+          - name: OPENSHIFT_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace  # Automatically gets the namespace where the pod is running
+        ports:
+          - name: oauth-proxy
+            containerPort: 8443
+        livenessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+        volumeMounts:
+          - name: wrapper-script
+            mountPath: /opt/oauth-proxy-wrapper.sh
+            subPath: oauth-proxy-wrapper.sh
+          - name: oauth-tls
+            mountPath: /etc/tls/private
+      volumes:
+      - name: wrapper-script
+        configMap:
+          name: oauth-proxy-wrapper
+          defaultMode: 0755
+      - name: oauth-tls
+        secret:
+          defaultMode: 420
+          secretName: mlflow-server-tls
       restartPolicy: Always
+      serviceAccountName: mlflow-setup
 ---
 apiVersion: v1
 kind: Service
@@ -106,17 +173,24 @@ metadata:
   name: mlflow-service
   labels:
     app: mlflow
+  annotations:
+    service.alpha.openshift.io/serving-cert-secret-name: mlflow-server-tls
 spec:
   ports:
     - name: api
       protocol: TCP
       port: 5000
       targetPort: api
+    - name: oauth-proxy
+      protocol: TCP
+      port: 8443
+      targetPort: oauth-proxy
   selector:
     app: mlflow
   sessionAffinity: None
   type: ClusterIP
 ---
+# Create a secure connection to the proxy via a route
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
@@ -125,10 +199,10 @@ metadata:
     app: mlflow
 spec:
   port:
-    targetPort: api
+    targetPort: oauth-proxy
   tls:
     insecureEdgeTerminationPolicy: Redirect
-    termination: edge
+    termination: Reencrypt
   to:
     kind: Service
     name: mlflow-service
