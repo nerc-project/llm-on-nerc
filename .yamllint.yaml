@@ -10,4 +10,6 @@ rules:
 # Ignore certain directories or Helm template files
 ignore: |
   llm-clients/openwebui/charts/**
-  llm-clients/openwebui/templates/**/*.tpl
+  llm-clients/openwebui/charts/openwebui/templates/**/*.tpl
+  mlflow/charts/**
+  mlflow/charts/mlflow-server/templates/**/*.tpl

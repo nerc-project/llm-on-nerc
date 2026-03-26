@@ -6,7 +6,7 @@ A Helm chart for deploying mlflow on OpenShift
 
 ## Pre-Reqs
 
-This chart utilizes components from the Crunch Postgres Operator and OpenShift Data Foundations in the default configuration.  The chart expects both operators to be installed on the cluster prior to deploying.
+This chart utilizes components from the Crunch Postgres Operator and OpenShift Data Foundations in the default configuration. The chart expects both operators to be installed on the cluster prior to deploying.
 
 ## Installing the Chart
 
@@ -77,7 +77,7 @@ Kubernetes: `>= 1.21.0`
 | ingress.tls | list | `[]` |  |
 | nameOverride | string | `""` | String to partially override fullname template (will maintain the release name) |
 | nodeSelector | object | `{}` | Node selector for the MlFlow Server pod |
-| objectStorage.caBundle | string | `"/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"` | The CA bundle for the internal cluster certs.  Set this value to "" for AWS S3. |
+| objectStorage.caBundle | string | `"/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"` | The CA bundle for the internal cluster certs. Set this value to "" for AWS S3. |
 | objectStorage.mlflowBucketName | string | `"mlflow"` | Name of the s3 bucket if the objectBucketClaim is disabled |
 | objectStorage.objectBucketClaim.annotations | object | `{}` | Additional custom annotations for the objectBucketClaim |
 | objectStorage.objectBucketClaim.bucketclass | string | `"noobaa-default-bucket-class"` | BucketClass name for the creation of the objectBucketClaim |
@@ -88,8 +88,8 @@ Kubernetes: `>= 1.21.0`
 | objectStorage.s3SecretAccessKey | string | `""` | S3 Secret Access Key if the objectBucketClaim is disabled |
 | odhApplication.enabled | bool | `false` | Enable the ODH Dashboard Application tile for MLFlow |
 | odhApplication.namespaceOverride | string | `""` | Used to specify the namespace ODH is installed in if installed in a different namespace from MLFlow |
-| openshiftOauth.enableBearerTokenAccess | bool | `false` | Enable access to MLFlow using an OpenShift Bearer Token.  This feature enables users from outside of the cluster to read/write to MLFlow using the API.   Warning: This feature requires cluster admin to install. |
-| openshiftOauth.enabled | bool | `true` | Secures MLFlow with OpenShift Oauth Proxy.  If disabling this option it is recommended to set `route.tls.termination: edge`. |
+| openshiftOauth.enableBearerTokenAccess | bool | `false` | Enable access to MLFlow using an OpenShift Bearer Token. This feature enables users from outside of the cluster to read/write to MLFlow using the API.  Warning: This feature requires cluster admin to install. |
+| openshiftOauth.enabled | bool | `true` | Secures MLFlow with OpenShift Oauth Proxy. If disabling this option it is recommended to set `route.tls.termination: edge`. |
 | openshiftOauth.image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
 | openshiftOauth.image.repository | string | `"registry.redhat.io/openshift4/ose-oauth-proxy"` | The image repository to use |
 | openshiftOauth.image.tag | string | Chart appVersion | The image tag to use |
@@ -120,9 +120,9 @@ Kubernetes: `>= 1.21.0`
 
 ### Utilizing MLFlow from Outside the Cluster with OAuth
 
-When accessing MLFlow from outside of the cluster with OAuth enabled, the route is secured by an OpenShift OAuth Proxy.  This OAuth proxy by default will only allow users to access MLFlow using the UI. 
+When accessing MLFlow from outside of the cluster with OAuth enabled, the route is secured by an OpenShift OAuth Proxy. This OAuth proxy by default will only allow users to access MLFlow using the UI.
 
-If you wish to run training processes from outside of the cluster that write to MLFlow you must set `enableBearerTokenAccess: true`.  This option requires additional permissions to be granted to the MLFlow Service Account which requires cluster admin privileges.  To install mlflow-server with this feature, run the following command:
+If you wish to run training processes from outside of the cluster that write to MLFlow you must set `enableBearerTokenAccess: true`. This option requires additional permissions to be granted to the MLFlow Service Account which requires cluster admin privileges. To install mlflow-server with this feature, run the following command:
 
 ```sh
 helm upgrade -i [release-name] strangiato/mlflow-server --set openshiftOauth.enableBearerTokenAccess=true

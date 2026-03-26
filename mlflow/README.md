@@ -168,7 +168,7 @@ For a full list of configurable options, see the helm chart documentation:
 
 #### Installing the Chart
 
-1. Update **Helm dependency** by running the following command:    
+1. Update **Helm dependency** by running the following command:
 
     ```sh
     helm dependency build
@@ -248,9 +248,9 @@ called "helm-test" show up in the MLflow UI with 3 experiments inside it.
 
 #### Utilizing MLflow from Outside the Cluster with OAuth
 
-When accessing MLflow from outside of the cluster with OAuth enabled, the route is secured by an OpenShift OAuth Proxy.  This OAuth proxy by default will only allow users to access MLflow using the UI. 
+When accessing MLflow from outside of the cluster with OAuth enabled, the route is secured by an OpenShift OAuth Proxy. This OAuth proxy by default will only allow users to access MLflow using the UI.
 
-If you wish to run training processes from outside of the cluster that write to MLflow you must set `enableBearerTokenAccess: true`.  This option requires additional permissions to be granted to the MLflow Service Account which requires cluster admin privileges.
+If you wish to run training processes from outside of the cluster that write to MLflow you must set `enableBearerTokenAccess: true`. This option requires additional permissions to be granted to the MLflow Service Account which requires cluster admin privileges.
 
 Once this option is enabled you can set the following environment variable in your training environment and MLflow will automatically pass your Bearer Token to the OpenShift OAuth Proxy and authenticate any API calls MLflow makes to the server.
 
