@@ -32,6 +32,8 @@ A prebuilt image is available at: [https://quay.io/troyer/mlflow-server:latest](
 
 ## Deployment procedure
 
+### A Standalone Deployment
+
 1. **Clone** or navigate to [this repository](https://github.com/nerc-project/llm-on-nerc.git).
 
     To get started, clone the repository using:
@@ -100,11 +102,11 @@ pod/mlflow-test-connection created
 pod/mlflow-test-training created
 ```
 
-## Clean Up
+#### Clean Up
 
 To delete all resources if not necessary just run `oc delete -f ./standalone/.`.
 
-## Usage
+#### Usage
 
 1. Go to the [NERC's OpenShift Web Console](https://console.apps.shift.nerc.mghpcc.org).
 
@@ -149,6 +151,126 @@ To delete all resources if not necessary just run `oc delete -f ./standalone/.`.
         This show the MLflow GUI as shown below:
 
         ![MLflow GUI](images/mlflow-gui.png)
+
+### Using Helm to install
+
+#### Pre-requisites
+
+This chart uses components from the **Crunch Postgres Operator** and **OpenShift Data Foundations (ODF)** with the default configuration. It requires both operators to be installed on the cluster (**already available on NERC clusters**) before deployment.
+
+#### Additional Options
+
+The MLflow Server helm chart provides a number of customizable options when deploying MLflow. These options can be configured using the `--set` flag with `helm install` or `helm upgrade` to set options directly on the command line or through a `values.yaml` file using the `--values` flag.
+
+For a full list of configurable options, see the helm chart documentation:
+
+[https://github.com/strangiato/helm-charts/tree/main/charts/mlflow-server#values](https://github.com/strangiato/helm-charts/tree/main/charts/mlflow-server#values)
+
+#### Installing the Chart
+
+1. Update **Helm dependency** by running the following command:    
+
+    ```sh
+    helm dependency build
+    ```
+
+    **Output:**
+
+    ```sh
+    Getting updates for unmanaged Helm repositories...
+    ...Successfully got an update from the "https://strangiato.github.io/helm-charts/" chart repository
+    Getting updates for unmanaged Helm repositories...
+    ...Successfully got an update from the "https://strangiato.github.io/helm-charts/" chart repository
+    ...Successfully got an update from the "https://strangiato.github.io/helm-charts/" chart repository
+    Saving 1 charts
+    Downloading postgrescluster from repo https://strangiato.github.io/helm-charts/
+    Deleting outdated charts
+    ```
+
+2. Install **Helm chart**.
+
+    Deploy MLflow server using Helm with your configuration:
+
+    ```sh
+    helm install mlflow-server ./ -f values.yaml
+    ```
+
+    **Output:**
+
+    ```sh
+    NAME: mlflow-server
+    LAST DEPLOYED: Thu Mar 26 08:41:49 2026
+    NAMESPACE: <your-namespace>
+    STATUS: deployed
+    REVISION: 1
+    DESCRIPTION: Install complete
+    ```
+
+#### To Remove the MLflow Helm Chart
+
+Run the following command to cleanly uninstall and delete the MLflow Helm release:
+
+```sh
+helm uninstall mlflow-server
+```
+
+#### Test MLflow
+
+-   Go to the [NERC's OpenShift Web Console](https://console.apps.shift.nerc.mghpcc.org).
+
+-   Go to the Topology view and make sure that you are on the MLflow project.
+
+    ![MLflow Server Setup Pods](images/mlflow-server-setup-pods.png)
+
+-   Check the `mlflow-server` pod circle that is in dark blue color (this means
+  it has finished deploying successfully and the pod is "Running").
+
+    The API is now accessible at the endpoints:
+
+    -   defined by your Service, accessible internally on port **8080** using http.
+
+        This is accessible **within the cluster only**, such as from the NERC RHOAI
+        Workbench hosted Jupyter Notebooks or another pod within your project namespace.
+
+        You can use either the service name or the fully qualified internal **Hostname**
+        for service routing, as shown below:
+
+        -   **Option 1:** Using the service name i.e. `http://mlflow-server:8080`
+
+        -   **Option 2:** Using the full internal hostname i.e. `http://mlflow-server.<your-namespace>.svc.cluster.local:8080`
+
+    -   defined by your Route, accessible externally through https, e.g. `https://mlflow-server-<your-namespace>.apps.shift.nerc.mghpcc.org`.
+
+-   Press the "External URL" link in the top right corner of the MLflow circle to open up the MLflow UI.
+
+-   Run `helm test mlflow-server` in your command prompt to test MLflow. If successful, you should see a new experiment
+called "helm-test" show up in the MLflow UI with 3 experiments inside it.
+
+#### Utilizing MLflow from Outside the Cluster with OAuth
+
+When accessing MLflow from outside of the cluster with OAuth enabled, the route is secured by an OpenShift OAuth Proxy.  This OAuth proxy by default will only allow users to access MLflow using the UI. 
+
+If you wish to run training processes from outside of the cluster that write to MLflow you must set `enableBearerTokenAccess: true`.  This option requires additional permissions to be granted to the MLflow Service Account which requires cluster admin privileges.
+
+Once this option is enabled you can set the following environment variable in your training environment and MLflow will automatically pass your Bearer Token to the OpenShift OAuth Proxy and authenticate any API calls MLflow makes to the server.
+
+```
+MLFLOW_TRACKING_TOKEN
+```
+
+To retrieve your token from openshift run the following command:
+
+```sh
+oc whoami --show-token
+```
+
+#### Source Code
+
+MLflow Server Source Code:
+[https://github.com/strangiato/mlflow-server](https://github.com/strangiato/mlflow-server)
+
+MLflow Server Helm Chart Source Code:
+[https://github.com/strangiato/helm-charts/tree/main/charts/mlflow-server](https://github.com/strangiato/helm-charts/tree/main/charts/mlflow-server)
 
 ## Adding MLflow to Training Code
 
