@@ -46,7 +46,7 @@ spec:
               memory: 2Gi
       containers:
         - name: llama-cpp
-          image: quay.io/milstein/llama-runtime-ubi:latest  # You can build and use your own image using provided Containerfile
+          image: quay.io/milstein/llama-runtime-ubi:latest  # You can build and use your own image using provided Containerfile or use the one from GitHub Container Registry -> ghcr.io/ggml-org/llama.cpp:server
           imagePullPolicy: IfNotPresent
           args: ["-m", "/models/mistral-7b-instruct-v0.3.Q4_K_M.gguf", "--prio", "3", "-c", "4096", "-b", "32", "-t", "48", "-n", "-1"]
           ports:
